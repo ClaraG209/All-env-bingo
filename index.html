@@ -1,13 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Office Bingo</title>
-  <link rel="stylesheet" href="style.css">
+    <title>Bingo Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <h1 id="message">Office Bingo</h1>
-  <div id="bingo-board"></div>
-  <script src="script.js"></script>
+    <h1>Bingo Game</h1>
+    <div id="bingo-board">
+        {% for i in range(25) %}
+            <div class="cell{% if board[i] == 'FREE' %} free selected{% endif %}" 
+                 onclick="toggleCell(this)">
+                {{ board[i] }}
+            </div>
+        {% endfor %}
+    </div>
+    <div id="bingo-status"></div>
+
+    <script>
+        function toggleCell(cell) {
+            if (cell.classList.contains('selected')) {
+                cell.classList.remove('selected');
+            } else {
+                cell.classList.add('selected');
+            }
+            checkBingo();
+        }
+
+        function checkBingo() {
+            const cells = document.querySelectorAll('.cell');
+            const grid = [...cells].map(cell => cell.classList.contains('selected'));
+            const size = 5;
+            const lines = [];
+
+            for (let i = 0; i < size; i++) {
+                lines.push(grid.slice(i * size, (i + 1) * size));
+            }
+
+            for (let i = 0; i < size; i++) {
+                lines.push([grid[i], grid[i + 5], grid[i + 10], grid[i + 15], grid[i + 20]]);
+            }
+
+            lines.push([grid[0], grid[6], grid[12], grid[18], grid[24]]);
+            lines.push([grid[4], grid[8], grid[12], grid[16], grid[20]]);
+
+            let bingo = lines.some(line => line.every(Boolean));
+            document.getElementById('bingo-status').textContent = bingo ? "🎉 BINGO!" : "";
+        }
+    </script>
 </body>
 </html>
